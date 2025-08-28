@@ -1,0 +1,128 @@
+/* CSS Custom Properties / Variables */
+
+:root {
+  /* Primary Colors */
+  --primary-yellow: #FFD700;
+  --primary-yellow-light: #FFED4A;
+  --primary-yellow-dark: #F59E0B;
+  
+  --primary-green: #00FF88;
+  --primary-cyan: #00FFFF;
+  
+  /* Background Colors - Dark Theme */
+  --background-primary: #0B0F1A;
+  --background-secondary: #1A1F2E;
+  --background-tertiary: #2A2F3E;
+  --background-darker: #050813;
+  
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B6C3;
+  --text-tertiary: #8B92A5;
+  --text-muted: #6B7280;
+  
+  /* Border Colors */
+  --border-primary: #374151;
+  --border-secondary: #4B5563;
+  --border-light: #6B7280;
+  
+  /* Minecraft Colors */
+  --minecraft-green: #55FF55;
+  --minecraft-aqua: #55FFFF;
+  --minecraft-yellow: #FFFF55;
+  --minecraft-red: #FF5555;
+  --minecraft-purple: #FF55FF;
+  --minecraft-blue: #5555FF;
+  --minecraft-gold: #FFAA00;
+  --minecraft-gray: #AAAAAA;
+  --minecraft-dark-gray: #555555;
+  
+  /* Status Colors */
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.6);
+  
+  /* Glow Effects */
+  --glow-yellow: 0 0 20px rgba(255, 215, 0, 0.4);
+  --glow-green: 0 0 20px rgba(0, 255, 136, 0.4);
+  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.4);
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 5rem;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Z-index scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  
+  /* Fonts */
+  --font-family-primary: 'Orbitron', 'Monaco', 'Consolas', monospace;
+  --font-family-minecraft: 'Orbitron', monospace;
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+}
+
+/* Theme variations for future use */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Override for light theme if needed */
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #FFFFFF;
+    --text-secondary: #E5E7EB;
+    --border-primary: #6B7280;
+  }
+}

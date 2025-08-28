@@ -1,0 +1,96 @@
+/* Donate Component Styles */
+
+.donate-container {
+  min-height: 100vh;
+  background-color: var(--background-primary);
+  padding: var(--space-4xl) 0;
+}
+
+.donate-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.donate-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.donate-title {
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-black);
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.donate-packages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-xl);
+}
+
+.package-card {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  text-align: center;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.package-card.featured {
+  border: 2px solid var(--primary-yellow);
+  box-shadow: var(--glow-yellow);
+}
+
+.package-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-yellow);
+}
+
+.package-price {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-black);
+  color: var(--primary-yellow);
+  margin-bottom: var(--space-lg);
+}
+
+.package-features {
+  list-style: none;
+  padding: 0;
+  margin-bottom: var(--space-xl);
+}
+
+.package-feature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  color: var(--text-secondary);
+}
+
+.feature-check {
+  color: var(--success);
+  font-weight: bold;
+}
+
+.package-button {
+  width: 100%;
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, var(--primary-yellow), var(--primary-yellow-dark));
+  color: var(--background-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.package-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-yellow);
+}

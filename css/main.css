@@ -1,0 +1,28 @@
+/* EPICMINE - Main CSS File */
+/* Clean, minimal, fully responsive Minecraft server website */
+
+/* Base styles */
+@import './base.css';
+@import './variables.css';
+
+/* Components */
+@import './components/header.css';
+@import './components/home.css';
+@import './components/layout.css';
+@import './components/rules.css';
+@import './components/donate.css';
+@import './components/contact.css';
+@import './components/blog.css';
+@import './components/admin.css';
+@import './components/team.css';
+
+/* Features */
+@import './animations.css';
+@import './cursor.css';
+@import './micro-interactions.css';
+
+/* Responsive design */
+@import './responsive.css';
+
+/* Accessibility */
+@import './accessibility.css';

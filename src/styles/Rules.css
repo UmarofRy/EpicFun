@@ -1,0 +1,475 @@
+/* Rules Component Styles */
+.rules-container {
+  min-height: 100vh;
+  background-color: var(--background-primary);
+  padding: 6rem 0 4rem;
+  color: var(--text-primary);
+}
+
+.rules-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header */
+.rules-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.rules-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.rules-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Important Notice */
+.rules-notice {
+  background: linear-gradient(135deg, #F59E0B, #F97316);
+  color: #000;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.notice-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  color: #000;
+}
+
+.notice-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.notice-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* Layout */
+.rules-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Navigation */
+.rules-navigation {
+  position: sticky;
+  top: 100px;
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-primary);
+}
+
+.nav-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-yellow);
+  margin-bottom: 1.5rem;
+}
+
+.nav-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-section-btn {
+  width: 100%;
+  text-align: left;
+  padding: 1rem;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-section-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--background-tertiary);
+  border-color: var(--border-primary);
+}
+
+.nav-section-btn.active {
+  color: var(--primary-yellow);
+  background-color: rgba(251, 191, 36, 0.1);
+  border-color: var(--primary-yellow);
+}
+
+.nav-section-title {
+  font-weight: 600;
+}
+
+/* Content Area */
+.rules-content-area {
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  padding: 0;
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+}
+
+.content-header {
+  padding: 2rem;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--background-primary);
+}
+
+.content-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.content-rules {
+  padding: 2rem;
+}
+
+.rule-item {
+  background-color: var(--background-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
+}
+
+.rule-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary-yellow);
+}
+
+.rule-item:last-child {
+  margin-bottom: 0;
+}
+
+.rule-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rule-number {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-yellow);
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.rule-title-section {
+  flex: 1;
+}
+
+.rule-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.rule-description {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.rule-content {
+  padding-left: 3rem;
+}
+
+.rule-details-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-yellow);
+  margin-bottom: 1rem;
+}
+
+.rule-details-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.rule-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.detail-bullet {
+  color: var(--primary-yellow);
+  font-weight: bold;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.rule-punishment {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.punishment-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #EF4444;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.punishment-text {
+  color: rgba(239, 68, 68, 0.9);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Appeal Section */
+.appeal-section {
+  margin-top: 4rem;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  color: #fff;
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+}
+
+.appeal-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.appeal-description {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.appeal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.appeal-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.appeal-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.appeal-button.primary {
+  background-color: #fff;
+  color: #3B82F6;
+  border-color: #fff;
+}
+
+.appeal-button.primary:hover {
+  background-color: #F3F4F6;
+  color: #2563EB;
+}
+
+.appeal-button.secondary {
+  background-color: transparent;
+  border-color: #fff;
+}
+
+/* Footer */
+.rules-footer {
+  margin-top: 3rem;
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-primary);
+}
+
+.footer-text {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.footer-highlight {
+  color: var(--primary-yellow);
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .rules-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .rules-navigation {
+    position: static;
+    order: -1;
+  }
+  
+  .nav-sections {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .nav-section-btn {
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .rules-container {
+    padding: 5rem 0 3rem;
+  }
+  
+  .rules-title {
+    font-size: 2.5rem;
+  }
+  
+  .rules-subtitle {
+    font-size: 1.125rem;
+  }
+  
+  .rules-notice {
+    padding: 1.5rem;
+  }
+  
+  .notice-title {
+    font-size: 1.25rem;
+  }
+  
+  .notice-text {
+    font-size: 1rem;
+  }
+  
+  .content-title {
+    font-size: 1.5rem;
+  }
+  
+  .rule-item {
+    padding: 1.5rem;
+  }
+  
+  .rule-content {
+    padding-left: 0;
+    margin-top: 1rem;
+  }
+  
+  .rule-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .rule-number {
+    margin: 0 auto;
+  }
+  
+  .appeal-section {
+    padding: 2rem;
+  }
+  
+  .appeal-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .appeal-button {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .rules-title {
+    font-size: 2rem;
+  }
+  
+  .nav-sections {
+    flex-direction: column;
+  }
+  
+  .nav-section-btn {
+    min-width: unset;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  
+  .content-header,
+  .content-rules {
+    padding: 1.5rem;
+  }
+  
+  .rule-item {
+    padding: 1rem;
+  }
+  
+  .rule-title {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,498 @@
+/* Accessibility Features */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* When focused, show screen reader content */
+.sr-only:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--primary-yellow) !important;
+  border-radius: var(--radius-md);
+  z-index: var(--z-toast);
+}
+
+/* Focus management */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--space-md);
+  background-color: var(--background-primary);
+  color: var(--primary-yellow);
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid var(--primary-yellow);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  z-index: var(--z-toast);
+  transition: all var(--transition-normal);
+}
+
+.skip-link:focus {
+  top: var(--space-md);
+}
+
+/* Enhanced focus styles */
+*:focus {
+  outline: 2px solid var(--primary-yellow);
+  outline-offset: 2px;
+}
+
+/* Custom focus styles for specific elements */
+.btn:focus,
+.auth-button:focus,
+.mobile-auth-button:focus {
+  outline: 3px solid var(--primary-yellow);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.2);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.search-input:focus {
+  outline: 2px solid var(--primary-yellow);
+  outline-offset: 2px;
+  border-color: var(--primary-yellow);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+.nav-link:focus,
+.mobile-nav-link:focus {
+  outline: 2px solid var(--primary-yellow);
+  outline-offset: 2px;
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.card:focus,
+.server-mode-card:focus,
+.feature-card:focus,
+.stat-card:focus {
+  outline: 2px solid var(--primary-yellow);
+  outline-offset: 4px;
+  border-color: var(--primary-yellow);
+}
+
+/* Focus within for containers */
+.server-info-card:focus-within,
+.online-players-section:focus-within {
+  outline: 2px solid var(--primary-yellow);
+  outline-offset: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  /* Enhanced contrast for text */
+  .text-primary {
+    color: #FFFFFF;
+  }
+  
+  .text-secondary {
+    color: #E5E7EB;
+  }
+  
+  /* High contrast borders */
+  .card,
+  .server-mode-card,
+  .feature-card,
+  .stat-card,
+  .server-info-card,
+  .online-players-section {
+    border: 2px solid #FFFFFF;
+  }
+  
+  /* High contrast buttons */
+  .btn-secondary,
+  .auth-button.login,
+  .mobile-auth-button.login,
+  .info-button,
+  .cta-secondary-button {
+    border: 3px solid #FFFFFF;
+  }
+  
+  /* High contrast status indicators */
+  .status-dot.online {
+    background-color: #00FF00;
+    border: 2px solid #FFFFFF;
+  }
+  
+  .status-dot.offline {
+    background-color: #FF0000;
+    border: 2px solid #FFFFFF;
+  }
+  
+  /* High contrast focus */
+  *:focus {
+    outline: 3px solid #FFFF00;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  /* Remove all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable transform animations on hover */
+  .btn:hover,
+  .card:hover,
+  .server-mode-card:hover,
+  .feature-card:hover,
+  .stat-card:hover,
+  .nav-link:hover,
+  .mobile-nav-link:hover {
+    transform: none !important;
+  }
+  
+  /* Disable parallax effects */
+  .hero-section {
+    background-attachment: scroll !important;
+  }
+  
+  /* Disable floating animations */
+  .hero-logo-icon,
+  .server-info-card {
+    animation: none !important;
+  }
+}
+
+/* Large text preference */
+@media (prefers-contrast: more) {
+  html {
+    font-size: 18px;
+  }
+  
+  .btn,
+  .auth-button,
+  .mobile-auth-button {
+    padding: var(--space-lg) var(--space-xl);
+    font-size: var(--font-size-lg);
+  }
+  
+  .nav-link,
+  .mobile-nav-link {
+    padding: var(--space-lg);
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Touch device accessibility */
+@media (pointer: coarse) {
+  /* Larger touch targets */
+  .btn,
+  .auth-button,
+  .mobile-auth-button,
+  .nav-link,
+  .mobile-nav-link,
+  .player-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for touch */
+  .mobile-nav-link {
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+  
+  /* Larger mobile menu button */
+  .mobile-menu-button {
+    width: 48px;
+    height: 48px;
+  }
+  
+  /* Better input sizes */
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .search-input {
+    padding: var(--space-lg);
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Color blindness support */
+.status-online::before {
+  content: "●";
+  color: var(--success);
+  margin-right: var(--space-xs);
+}
+
+.status-offline::before {
+  content: "●";
+  color: var(--error);
+  margin-right: var(--space-xs);
+}
+
+.feature-check::after {
+  content: " ✓";
+  font-weight: bold;
+}
+
+/* ARIA live regions */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Loading states with ARIA */
+.loading-spinner[aria-label] {
+  position: relative;
+}
+
+.loading-spinner[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* Error states */
+.error-message {
+  color: var(--error);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.error-message::before {
+  content: "⚠";
+  color: var(--error);
+  font-size: var(--font-size-lg);
+}
+
+/* Success states */
+.success-message {
+  color: var(--success);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.success-message::before {
+  content: "✓";
+  color: var(--success);
+  font-size: var(--font-size-lg);
+}
+
+/* Form validation */
+.form-input:invalid,
+.form-select:invalid,
+.form-textarea:invalid {
+  border-color: var(--error);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.form-input:valid,
+.form-select:valid,
+.form-textarea:valid {
+  border-color: var(--success);
+}
+
+.form-input:invalid:focus,
+.form-select:invalid:focus,
+.form-textarea:invalid:focus {
+  outline: 2px solid var(--error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Required field indicators */
+.required::after {
+  content: " *";
+  color: var(--error);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Keyboard navigation helpers */
+.keyboard-nav {
+  outline: 3px solid var(--primary-yellow);
+  outline-offset: 2px;
+}
+
+/* Tab order management */
+.tab-trap {
+  position: fixed;
+  top: -1px;
+  left: -1px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Modal and overlay accessibility */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: var(--z-modal-backdrop);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--background-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: var(--z-modal);
+}
+
+.modal:focus {
+  outline: none;
+}
+
+/* Tooltip accessibility */
+.tooltip[aria-describedby] {
+  position: relative;
+}
+
+/* Language support */
+[lang="en"] {
+  font-family: var(--font-family-primary);
+}
+
+[lang="uz"] {
+  font-family: var(--font-family-primary);
+}
+
+/* Right-to-left support (if needed) */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .nav-link:hover {
+  transform: translateX(-3px);
+}
+
+[dir="rtl"] .mobile-nav-link:hover {
+  transform: translateX(-8px);
+}
+
+[dir="rtl"] .mobile-nav-link::before {
+  right: 0;
+  left: auto;
+}
+
+/* Print accessibility */
+@media print {
+  /* Ensure important content is visible */
+  .sr-only {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    clip: auto !important;
+  }
+  
+  /* Add URL after links */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  /* Don't print empty links */
+  a[href^="#"]:after {
+    content: "";
+  }
+}
+
+/* Windows High Contrast Mode */
+@media (prefers-contrast: high) {
+  /* Ensure decorative elements are visible */
+  .card::before,
+  .server-mode-card::before,
+  .feature-card::before,
+  .stat-card::before {
+    background: linear-gradient(90deg, #FFFFFF, #FFFFFF);
+  }
+  
+  /* Ensure borders are visible */
+  .btn,
+  .card,
+  .form-input,
+  .form-select,
+  .form-textarea {
+    border: 2px solid #FFFFFF;
+  }
+}
+
+/* Voice control support */
+[data-voice-command] {
+  position: relative;
+}
+
+[data-voice-command]::after {
+  content: attr(data-voice-command);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: var(--background-darker);
+  color: var(--text-primary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+}
+
+[data-voice-command]:focus::after,
+[data-voice-command]:hover::after {
+  opacity: 1;
+}
+
+/* Dark mode accessibility improvements */
+@media (prefers-color-scheme: dark) {
+  /* Ensure sufficient contrast in dark mode */
+  .text-secondary {
+    color: #C7D2FE;
+  }
+  
+  .text-tertiary {
+    color: #A5B4FC;
+  }
+}
