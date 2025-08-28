@@ -19,6 +19,14 @@ const AdminPanel = () => {
     nickname: "Owner"
   };
 
+  // Super-Admin credentials 
+  const SUPER_ADMIN_CREDENTIALS = {
+    email: "crown09@gmail.com",
+    password: "crownjon009uzb",
+    role: "super-admin",
+    nickname: "Super-Admin"
+  };
+
   // Mock data for shop items
   const [data, setData] = useState({
     ranks: [
@@ -103,6 +111,28 @@ const AdminPanel = () => {
     localStorage.setItem("epic_admins", JSON.stringify(admins));
   };
 
+  // Role-based permissions
+  const hasPermission = (action) => {
+    if (!currentUser) return false;
+    
+    switch (action) {
+      case "manage_helpers":
+        // Owner va Super-Admin Helper'larni boshqara oladi
+        return currentUser.role === "owner" || currentUser.role === "super-admin";
+      case "manage_admins":
+        // Faqat Owner adminlarni boshqara oladi
+        return currentUser.role === "owner";
+      case "manage_shop":
+        // Barcha rollar shop boshqara oladi
+        return ["owner", "super-admin", "admin", "helper"].includes(currentUser.role);
+      case "view_users":
+        // Barcha rollar foydalanuvchilar ro'yxatini ko'ra oladi
+        return ["owner", "super-admin", "admin", "helper"].includes(currentUser.role);
+      default:
+        return false;
+    }
+  };
+
   // Initialize component
   useEffect(() => {
     // Check if already authenticated
@@ -151,6 +181,19 @@ const AdminPanel = () => {
       loginForm.password === OWNER_CREDENTIALS.password
     ) {
       const user = OWNER_CREDENTIALS;
+      setIsAuthenticated(true);
+      setCurrentUser(user);
+      localStorage.setItem("admin_authenticated", "true");
+      localStorage.setItem("current_user", JSON.stringify(user));
+      return;
+    }
+
+    // Check Super-Admin credentials
+    if (
+      loginForm.email === SUPER_ADMIN_CREDENTIALS.email &&
+      loginForm.password === SUPER_ADMIN_CREDENTIALS.password
+    ) {
+      const user = SUPER_ADMIN_CREDENTIALS;
       setIsAuthenticated(true);
       setCurrentUser(user);
       localStorage.setItem("admin_authenticated", "true");
@@ -318,18 +361,16 @@ const AdminPanel = () => {
     if (!user) return "";
     switch (user.role) {
       case "owner":
-        return "Owner (Asosiy Admin)";
+        return "OWNER (Eng katta vakolat)";
+      case "super-admin":
+        return "SUPER-ADMIN";
       case "admin":
-        return "Admin";
+        return "ADMIN";
       case "helper":
-        return "Helper";
+        return "HELPER";
       default:
         return user.role || "";
     }
-  };
-
-  const canManageAdmins = () => {
-    return currentUser && currentUser.role === "owner";
   };
 
   // Login Form
@@ -340,7 +381,7 @@ const AdminPanel = () => {
           <div className="login-card">
             <h1 className="login-title">Admin Panel</h1>
             <p className="login-subtitle">
-              Owner, Admin va Helper'lar uchun kirish
+              Owner, Super-Admin, Admin va Helper'lar uchun kirish
             </p>
 
             <form onSubmit={handleLogin} className="login-form">
@@ -380,6 +421,15 @@ const AdminPanel = () => {
                 Kirish
               </button>
             </form>
+
+            <div className="login-help">
+              <p>Foydalanuvchi rollari:</p>
+              <ul>
+                <li><strong>OWNER:</strong> Eng katta vakolat - hamma narsani qila oladi</li>
+                <li><strong>SUPER-ADMIN:</strong> Helper'larni boshqara oladi</li>
+                <li><strong>HELPER:</strong> Admin ishlarini qila oladi</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -413,37 +463,54 @@ const AdminPanel = () => {
 
         {/* Navigation Tabs */}
         <div className="admin-tabs">
-          <button
-            onClick={() => setActiveTab("ranks")}
-            className={`admin-tab ${activeTab === "ranks" ? "active" : ""}`}
-          >
-            Ranklar
-          </button>
-          <button
-            onClick={() => setActiveTab("tokens")}
-            className={`admin-tab ${activeTab === "tokens" ? "active" : ""}`}
-          >
-            Tokenlar
-          </button>
-          <button
-            onClick={() => setActiveTab("coins")}
-            className={`admin-tab ${activeTab === "coins" ? "active" : ""}`}
-          >
-            Coinlar
-          </button>
-          <button
-            onClick={() => setActiveTab("team")}
-            className={`admin-tab ${activeTab === "team" ? "active" : ""}`}
-          >
-            Jamoa
-          </button>
-          <button
-            onClick={() => setActiveTab("helpers")}
-            className={`admin-tab ${activeTab === "helpers" ? "active" : ""}`}
-          >
-            Helper'lar
-          </button>
-          {canManageAdmins() && (
+          {hasPermission("manage_shop") && (
+            <>
+              <button
+                onClick={() => setActiveTab("ranks")}
+                className={`admin-tab ${activeTab === "ranks" ? "active" : ""}`}
+              >
+                Ranklar
+              </button>
+              <button
+                onClick={() => setActiveTab("tokens")}
+                className={`admin-tab ${activeTab === "tokens" ? "active" : ""}`}
+              >
+                Tokenlar
+              </button>
+              <button
+                onClick={() => setActiveTab("coins")}
+                className={`admin-tab ${activeTab === "coins" ? "active" : ""}`}
+              >
+                Coinlar
+              </button>
+              <button
+                onClick={() => setActiveTab("team")}
+                className={`admin-tab ${activeTab === "team" ? "active" : ""}`}
+              >
+                Jamoa
+              </button>
+            </>
+          )}
+          
+          {hasPermission("view_users") && (
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`admin-tab ${activeTab === "users" ? "active" : ""}`}
+            >
+              Foydalanuvchilar
+            </button>
+          )}
+          
+          {hasPermission("manage_helpers") && (
+            <button
+              onClick={() => setActiveTab("helpers")}
+              className={`admin-tab ${activeTab === "helpers" ? "active" : ""}`}
+            >
+              Helper'lar
+            </button>
+          )}
+          
+          {hasPermission("manage_admins") && (
             <button
               onClick={() => setActiveTab("admins")}
               className={`admin-tab ${activeTab === "admins" ? "active" : ""}`}
@@ -461,10 +528,11 @@ const AdminPanel = () => {
               {activeTab === "tokens" && "Tokenlar boshqaruvi"}
               {activeTab === "coins" && "Coinlar boshqaruvi"}
               {activeTab === "team" && "Jamoa aʼzolari boshqaruvi"}
-              {activeTab === "helpers" && "Helper'lar ro'yxati"}
+              {activeTab === "users" && "Barcha foydalanuvchilar"}
+              {activeTab === "helpers" && "Helper'lar boshqaruvi"}
               {activeTab === "admins" && "Adminlar boshqaruvi"}
             </h2>
-            {!["admins", "helpers"].includes(activeTab) && (
+            {["ranks", "tokens", "coins", "team"].includes(activeTab) && hasPermission("manage_shop") && (
               <button
                 onClick={() => openAddModal(activeTab)}
                 className="add-button"
@@ -483,11 +551,12 @@ const AdminPanel = () => {
           </div>
 
           {/* Content based on active tab */}
-          {activeTab === "helpers" && <HelpersManager currentUser={currentUser} />}
-          {activeTab === "admins" && canManageAdmins() && <AdminsManager />}
+          {activeTab === "users" && <AllUsersView currentUser={currentUser} />}
+          {activeTab === "helpers" && hasPermission("manage_helpers") && <HelpersManager currentUser={currentUser} />}
+          {activeTab === "admins" && hasPermission("manage_admins") && <AdminsManager />}
           
           {/* Regular data tables */}
-          {!["admins", "helpers"].includes(activeTab) && (
+          {["ranks", "tokens", "coins", "team"].includes(activeTab) && hasPermission("manage_shop") && (
             <>
               {data[activeTab].length > 0 ? (
                 <table className="data-table">
@@ -766,9 +835,120 @@ const AdminPanel = () => {
   );
 };
 
-// Helper'lar ro'yxati komponenti - barcha foydalanuvchilar ko'ra oladi
+// Barcha foydalanuvchilar ko'rish komponenti - barcha rollar ko'ra oladi
+const AllUsersView = ({ currentUser }) => {
+  const [helpers, setHelpers] = useState([]);
+  const [admins, setAdmins] = useState([]);
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedHelpers = localStorage.getItem("epic_helpers");
+      const savedAdmins = localStorage.getItem("epic_admins");
+      
+      setHelpers(savedHelpers ? JSON.parse(savedHelpers) : []);
+      setAdmins(savedAdmins ? JSON.parse(savedAdmins) : []);
+    };
+    
+    loadData();
+    
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      loadData();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const allUsers = [
+    {
+      id: "owner",
+      nickname: "Owner",
+      email: "ryumarof@gmail.com",
+      role: "OWNER",
+      createdAt: "2024-01-01",
+      status: "Faol"
+    },
+    {
+      id: "super-admin",
+      nickname: "Super-Admin",
+      email: "crown09@gmail.com",
+      role: "SUPER-ADMIN",
+      createdAt: "2024-01-01",
+      status: "Faol"
+    },
+    ...admins.map(admin => ({
+      ...admin,
+      role: "ADMIN",
+      status: "Faol"
+    })),
+    ...helpers.map(helper => ({
+      ...helper,
+      role: "HELPER",
+      status: "Faol"
+    }))
+  ];
+
+  return (
+    <div>
+      <div className="users-info">
+        <h3>Barcha foydalanuvchilar ro'yxati</h3>
+        <p>
+          Tizimda ro'yxatga olingan barcha foydalanuvchilar: Owner, Super-Admin, Admin va Helper'lar.
+        </p>
+      </div>
+      
+      {allUsers.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-title">Foydalanuvchilar topilmadi</div>
+        </div>
+      ) : (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Nickname</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Qo'shilgan sana</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allUsers.map((user) => (
+              <tr key={user.id}>
+                <td>
+                  <span className={`role-badge role-${user.role.toLowerCase()}`}>
+                    {user.nickname}
+                  </span>
+                </td>
+                <td>{user.email}</td>
+                <td>
+                  <span className={`role-tag role-${user.role.toLowerCase()}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td>{new Date(user.createdAt).toLocaleDateString('uz-UZ')}</td>
+                <td>
+                  <span className="status-online">{user.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+// Helper'lar boshqaruvi komponenti - Owner va Super-Admin boshqara oladi
 const HelpersManager = ({ currentUser }) => {
   const [helpers, setHelpers] = useState([]);
+  const [helperForm, setHelperForm] = useState({ 
+    email: "", 
+    password: "", 
+    nickname: "" 
+  });
+  const [isAddingHelper, setIsAddingHelper] = useState(false);
 
   useEffect(() => {
     const loadHelpers = () => {
@@ -787,115 +967,10 @@ const HelpersManager = ({ currentUser }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  return (
-    <div>
-      <div className="helpers-info">
-        <h3>Helper'lar ro'yxati</h3>
-        <p>
-          Barcha Helper'lar ro'yxati. Helper'lar admin qiladigan barcha ishni qila oladi, 
-          faqat yangi admin qo'shish va o'chirishga ruxsati yo'q.
-        </p>
-      </div>
-      
-      {helpers.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-title">Hech qanday Helper topilmadi</div>
-          <div className="empty-description">
-            Hozircha hech qanday Helper qo'shilmagan
-          </div>
-        </div>
-      ) : (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Nickname</th>
-              <th>Email</th>
-              <th>Qo'shilgan sana</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {helpers.map((helper) => (
-              <tr key={helper.id}>
-                <td>{helper.nickname}</td>
-                <td>{helper.email}</td>
-                <td>{new Date(helper.createdAt).toLocaleDateString('uz-UZ')}</td>
-                <td>
-                  <span className="status-online">Faol</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
-};
-
-// Adminlar boshqaruvi komponenti - faqat Owner ko'ra oladi
-const AdminsManager = () => {
-  const [admins, setAdmins] = useState([]);
-  const [helpers, setHelpers] = useState([]);
-  const [adminForm, setAdminForm] = useState({ 
-    email: "", 
-    password: "", 
-    nickname: "" 
-  });
-  const [helperForm, setHelperForm] = useState({ 
-    email: "", 
-    password: "", 
-    nickname: "" 
-  });
-  const [isAddingHelper, setIsAddingHelper] = useState(false);
-
-  useEffect(() => {
-    // Load existing data
-    const savedAdmins = localStorage.getItem("epic_admins");
-    const savedHelpers = localStorage.getItem("epic_helpers");
-    
-    setAdmins(savedAdmins ? JSON.parse(savedAdmins) : []);
-    setHelpers(savedHelpers ? JSON.parse(savedHelpers) : []);
-  }, []);
-
-  // Save admins to localStorage
-  const saveAdmins = (newAdmins) => {
-    setAdmins(newAdmins);
-    localStorage.setItem("epic_admins", JSON.stringify(newAdmins));
-  };
-
   // Save helpers to localStorage
   const saveHelpers = (newHelpers) => {
     setHelpers(newHelpers);
     localStorage.setItem("epic_helpers", JSON.stringify(newHelpers));
-  };
-
-  // Add new admin
-  const addAdmin = (e) => {
-    e.preventDefault();
-    if (!adminForm.email || !adminForm.password || !adminForm.nickname) {
-      alert("Barcha maydonlarni to'ldiring!");
-      return;
-    }
-    
-    // Check if email already exists
-    const allUsers = [...admins, ...helpers];
-    if (allUsers.some(user => user.email === adminForm.email)) {
-      alert("Bu email allaqachon ishlatilmoqda!");
-      return;
-    }
-    
-    const newAdmin = {
-      id: Date.now().toString(),
-      email: adminForm.email,
-      password: adminForm.password,
-      nickname: adminForm.nickname,
-      role: "admin",
-      createdAt: new Date().toISOString()
-    };
-    
-    saveAdmins([...admins, newAdmin]);
-    setAdminForm({ email: "", password: "", nickname: "" });
-    alert("Admin muvaffaqiyatli qo'shildi!");
   };
 
   // Add new helper via POST simulation
@@ -907,7 +982,16 @@ const AdminsManager = () => {
     }
     
     // Check if email already exists
-    const allUsers = [...admins, ...helpers];
+    const existingHelpers = helpers;
+    const existingAdmins = JSON.parse(localStorage.getItem("epic_admins") || "[]");
+    const allUsers = [...existingHelpers, ...existingAdmins];
+    
+    // Check built-in accounts
+    if (helperForm.email === "ryumarof@gmail.com" || helperForm.email === "crown09@gmail.com") {
+      alert("Bu email allaqachon ishlatilmoqda!");
+      return;
+    }
+    
     if (allUsers.some(user => user.email === helperForm.email)) {
       alert("Bu email allaqachon ishlatilmoqda!");
       return;
@@ -918,18 +1002,6 @@ const AdminsManager = () => {
     try {
       // Simulate POST request delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In real application, this would be:
-      // const response = await fetch('/api/helpers', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     email: helperForm.email,
-      //     password: helperForm.password,
-      //     nickname: helperForm.nickname,
-      //     role: "helper"
-      //   })
-      // });
       
       const newHelper = {
         id: Date.now().toString(),
@@ -951,15 +1023,6 @@ const AdminsManager = () => {
     }
   };
 
-  // Remove admin
-  const removeAdmin = (adminId) => {
-    if (window.confirm("Bu adminni o'chirishni xohlaysizmi?")) {
-      const newAdmins = admins.filter(admin => admin.id !== adminId);
-      saveAdmins(newAdmins);
-      alert("Admin o'chirildi!");
-    }
-  };
-
   // Remove helper
   const removeHelper = (helperId) => {
     if (window.confirm("Bu helper'ni o'chirishni xohlaysizmi? U endi login qila olmaydi.")) {
@@ -971,7 +1034,178 @@ const AdminsManager = () => {
 
   return (
     <div>
-      <h2 className="crud-title">Adminlar va Helper'lar boshqaruvi</h2>
+      <div className="helpers-info">
+        <h3>Helper'lar boshqaruvi</h3>
+        <p>
+          Helper'lar admin qiladigan barcha ishni qila oladi, lekin yangi Admin yoki Super-Admin qo'sha olmaydi va o'chira olmaydi.
+        </p>
+      </div>
+      
+      {helpers.length > 0 ? (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Nickname</th>
+              <th>Email</th>
+              <th>Qo'shilgan sana</th>
+              <th>Status</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {helpers.map((helper) => (
+              <tr key={helper.id}>
+                <td>{helper.nickname}</td>
+                <td>{helper.email}</td>
+                <td>{new Date(helper.createdAt).toLocaleDateString('uz-UZ')}</td>
+                <td>
+                  <span className="status-online">Faol</span>
+                </td>
+                <td>
+                  <div className="table-actions">
+                    <button
+                      onClick={() => removeHelper(helper.id)}
+                      className="delete-button"
+                    >
+                      O'chirish
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="empty-state">
+          <div className="empty-title">Hech qanday Helper topilmadi</div>
+          <div className="empty-description">
+            Yangi Helper qo'shish uchun quyidagi formani to'ldiring
+          </div>
+        </div>
+      )}
+
+      {/* Add Helper Form with POST simulation */}
+      <form onSubmit={addHelper} className="admin-form">
+        <h4>Yangi Helper qo'shish (POST request)</h4>
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Nickname</label>
+            <input
+              type="text"
+              className="form-input"
+              value={helperForm.nickname}
+              onChange={(e) =>
+                setHelperForm((prev) => ({ ...prev, nickname: e.target.value }))
+              }
+              required
+              disabled={isAddingHelper}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={helperForm.email}
+              onChange={(e) =>
+                setHelperForm((prev) => ({ ...prev, email: e.target.value }))
+              }
+              required
+              disabled={isAddingHelper}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Parol</label>
+            <input
+              type="password"
+              className="form-input"
+              value={helperForm.password}
+              onChange={(e) =>
+                setHelperForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              required
+              disabled={isAddingHelper}
+            />
+          </div>
+        </div>
+        <button type="submit" className="add-button" disabled={isAddingHelper}>
+          {isAddingHelper ? "Qo'shilmoqda..." : "Helper qo'shish (POST)"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// Adminlar boshqaruvi komponenti - faqat Owner ko'ra oladi
+const AdminsManager = () => {
+  const [admins, setAdmins] = useState([]);
+  const [adminForm, setAdminForm] = useState({ 
+    email: "", 
+    password: "", 
+    nickname: "" 
+  });
+
+  useEffect(() => {
+    // Load existing data
+    const savedAdmins = localStorage.getItem("epic_admins");
+    setAdmins(savedAdmins ? JSON.parse(savedAdmins) : []);
+  }, []);
+
+  // Save admins to localStorage
+  const saveAdmins = (newAdmins) => {
+    setAdmins(newAdmins);
+    localStorage.setItem("epic_admins", JSON.stringify(newAdmins));
+  };
+
+  // Add new admin
+  const addAdmin = (e) => {
+    e.preventDefault();
+    if (!adminForm.email || !adminForm.password || !adminForm.nickname) {
+      alert("Barcha maydonlarni to'ldiring!");
+      return;
+    }
+    
+    // Check if email already exists
+    const existingHelpers = JSON.parse(localStorage.getItem("epic_helpers") || "[]");
+    const allUsers = [...admins, ...existingHelpers];
+    
+    // Check built-in accounts
+    if (adminForm.email === "ryumarof@gmail.com" || adminForm.email === "crown09@gmail.com") {
+      alert("Bu email allaqachon ishlatilmoqda!");
+      return;
+    }
+    
+    if (allUsers.some(user => user.email === adminForm.email)) {
+      alert("Bu email allaqachon ishlatilmoqda!");
+      return;
+    }
+    
+    const newAdmin = {
+      id: Date.now().toString(),
+      email: adminForm.email,
+      password: adminForm.password,
+      nickname: adminForm.nickname,
+      role: "admin",
+      createdAt: new Date().toISOString()
+    };
+    
+    saveAdmins([...admins, newAdmin]);
+    setAdminForm({ email: "", password: "", nickname: "" });
+    alert("Admin muvaffaqiyatli qo'shildi!");
+  };
+
+  // Remove admin
+  const removeAdmin = (adminId) => {
+    if (window.confirm("Bu adminni o'chirishni xohlaysizmi?")) {
+      const newAdmins = admins.filter(admin => admin.id !== adminId);
+      saveAdmins(newAdmins);
+      alert("Admin o'chirildi!");
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="crud-title">Adminlar boshqaruvi (Faqat Owner uchun)</h2>
       
       {/* Admins Section */}
       <div className="admin-section">
@@ -1055,95 +1289,6 @@ const AdminsManager = () => {
           </div>
           <button type="submit" className="add-button">
             Admin qo'shish
-          </button>
-        </form>
-      </div>
-
-      {/* Helpers Section */}
-      <div className="helper-section" style={{ marginTop: "2rem" }}>
-        <h3>Helper'lar ro'yxati</h3>
-        {helpers.length > 0 ? (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Nickname</th>
-                <th>Email</th>
-                <th>Qo'shilgan sana</th>
-                <th>Amallar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {helpers.map((helper) => (
-                <tr key={helper.id}>
-                  <td>{helper.nickname}</td>
-                  <td>{helper.email}</td>
-                  <td>{new Date(helper.createdAt).toLocaleDateString('uz-UZ')}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button
-                        onClick={() => removeHelper(helper.id)}
-                        className="delete-button"
-                      >
-                        O'chirish
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="empty-state">
-            <div className="empty-description">Hech qanday helper qo'shilmagan</div>
-          </div>
-        )}
-
-        {/* Add Helper Form with POST simulation */}
-        <form onSubmit={addHelper} className="admin-form">
-          <h4>Yangi Helper qo'shish (POST request)</h4>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Nickname</label>
-              <input
-                type="text"
-                className="form-input"
-                value={helperForm.nickname}
-                onChange={(e) =>
-                  setHelperForm((prev) => ({ ...prev, nickname: e.target.value }))
-                }
-                required
-                disabled={isAddingHelper}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-input"
-                value={helperForm.email}
-                onChange={(e) =>
-                  setHelperForm((prev) => ({ ...prev, email: e.target.value }))
-                }
-                required
-                disabled={isAddingHelper}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Parol</label>
-              <input
-                type="password"
-                className="form-input"
-                value={helperForm.password}
-                onChange={(e) =>
-                  setHelperForm((prev) => ({ ...prev, password: e.target.value }))
-                }
-                required
-                disabled={isAddingHelper}
-              />
-            </div>
-          </div>
-          <button type="submit" className="add-button" disabled={isAddingHelper}>
-            {isAddingHelper ? "Qo'shilmoqda..." : "Helper qo'shish (POST)"}
           </button>
         </form>
       </div>
