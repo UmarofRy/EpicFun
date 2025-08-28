@@ -3,20 +3,23 @@ import "../styles/AdminPanel.css";
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [activeTab, setActiveTab] = useState("ranks");
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [modalType, setModalType] = useState("add"); // 'add' or 'edit'
+  const [modalType, setModalType] = useState("add");
 
-  // Secure credentials as specified
-  const ADMIN_CREDENTIALS = {
+  // Owner credentials - asosiy admin
+  const OWNER_CREDENTIALS = {
     email: "ryumarof@gmail.com",
     password: "1818epic40",
+    role: "owner",
+    nickname: "Owner"
   };
 
-  // Mock data - in real app this would come from API
+  // Mock data for shop items
   const [data, setData] = useState({
     ranks: [
       {
@@ -81,18 +84,44 @@ const AdminPanel = () => {
 
   const [formData, setFormData] = useState({});
 
+  // Helper functions for localStorage management
+  const getStoredHelpers = () => {
+    const saved = localStorage.getItem("epic_helpers");
+    return saved ? JSON.parse(saved) : [];
+  };
+
+  const saveHelpers = (helpers) => {
+    localStorage.setItem("epic_helpers", JSON.stringify(helpers));
+  };
+
+  const getStoredAdmins = () => {
+    const saved = localStorage.getItem("epic_admins");
+    return saved ? JSON.parse(saved) : [];
+  };
+
+  const saveAdmins = (admins) => {
+    localStorage.setItem("epic_admins", JSON.stringify(admins));
+  };
+
+  // Initialize component
   useEffect(() => {
     // Check if already authenticated
     const authStatus = localStorage.getItem("admin_authenticated");
-    if (authStatus === "true") {
+    const savedUser = localStorage.getItem("current_user");
+    if (authStatus === "true" && savedUser) {
+      const user = JSON.parse(savedUser);
       setIsAuthenticated(true);
+      setCurrentUser(user);
     }
+
+    // Load shop data
     const saved = localStorage.getItem("epic_shop_data");
     if (saved) {
       try {
         setData((prev) => ({ ...prev, ...JSON.parse(saved) }));
       } catch {}
     }
+    
     const savedTeam = localStorage.getItem("epic_team_members");
     if (savedTeam) {
       try {
@@ -101,6 +130,7 @@ const AdminPanel = () => {
     }
   }, []);
 
+  // Save shop data when it changes
   useEffect(() => {
     const { ranks, tokens, coins } = data;
     localStorage.setItem(
@@ -110,27 +140,64 @@ const AdminPanel = () => {
     localStorage.setItem("epic_team_members", JSON.stringify(data.team || []));
   }, [data]);
 
+  // Login handler
   const handleLogin = (e) => {
     e.preventDefault();
     setLoginError("");
 
+    // Check Owner credentials
     if (
-      loginForm.email === ADMIN_CREDENTIALS.email &&
-      loginForm.password === ADMIN_CREDENTIALS.password
+      loginForm.email === OWNER_CREDENTIALS.email &&
+      loginForm.password === OWNER_CREDENTIALS.password
     ) {
+      const user = OWNER_CREDENTIALS;
       setIsAuthenticated(true);
+      setCurrentUser(user);
       localStorage.setItem("admin_authenticated", "true");
-    } else {
-      setLoginError("Noto'g'ri email yoki parol");
+      localStorage.setItem("current_user", JSON.stringify(user));
+      return;
     }
+
+    // Check admins
+    const admins = getStoredAdmins();
+    const foundAdmin = admins.find(
+      (admin) => admin.email === loginForm.email && admin.password === loginForm.password
+    );
+
+    if (foundAdmin) {
+      setIsAuthenticated(true);
+      setCurrentUser(foundAdmin);
+      localStorage.setItem("admin_authenticated", "true");
+      localStorage.setItem("current_user", JSON.stringify(foundAdmin));
+      return;
+    }
+
+    // Check helpers
+    const helpers = getStoredHelpers();
+    const foundHelper = helpers.find(
+      (helper) => helper.email === loginForm.email && helper.password === loginForm.password
+    );
+
+    if (foundHelper) {
+      setIsAuthenticated(true);
+      setCurrentUser(foundHelper);
+      localStorage.setItem("admin_authenticated", "true");
+      localStorage.setItem("current_user", JSON.stringify(foundHelper));
+      return;
+    }
+
+    setLoginError("Noto'g'ri email yoki parol");
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setCurrentUser(null);
     localStorage.removeItem("admin_authenticated");
+    localStorage.removeItem("current_user");
     setLoginForm({ email: "", password: "" });
   };
 
+  // Modal handlers
   const openAddModal = (type) => {
     setActiveTab(type);
     setModalType("add");
@@ -164,18 +231,31 @@ const AdminPanel = () => {
           price: "",
           description: "",
         };
+      case "team":
+        return {
+          nickname: "",
+          role: "",
+          telegram: "",
+          avatar: "",
+          description: "",
+        };
       default:
         return {};
     }
   };
 
+  // CRUD operations
   const handleSave = () => {
     if (modalType === "add") {
       const newItem = {
         ...formData,
         id: Date.now().toString(),
-        price: parseInt(formData.price),
       };
+      
+      if (activeTab !== "team") {
+        newItem.price = parseInt(formData.price);
+      }
+      
       setData((prev) => ({
         ...prev,
         [activeTab]: [...prev[activeTab], newItem],
@@ -185,7 +265,10 @@ const AdminPanel = () => {
         ...prev,
         [activeTab]: prev[activeTab].map((item) =>
           item.id === editingItem.id
-            ? { ...formData, price: parseInt(formData.price) }
+            ? { 
+                ...formData, 
+                price: activeTab !== "team" ? parseInt(formData.price) : formData.price 
+              }
             : item
         ),
       }));
@@ -202,6 +285,7 @@ const AdminPanel = () => {
     }
   };
 
+  // Feature management for ranks
   const addFeature = () => {
     setFormData((prev) => ({
       ...prev,
@@ -225,8 +309,27 @@ const AdminPanel = () => {
     }));
   };
 
+  // Utility functions
   const formatPrice = (price) => {
     return new Intl.NumberFormat("uz-UZ").format(price) + " so'm";
+  };
+
+  const getUserRoleDisplay = (user) => {
+    if (!user) return "";
+    switch (user.role) {
+      case "owner":
+        return "Owner (Asosiy Admin)";
+      case "admin":
+        return "Admin";
+      case "helper":
+        return "Helper";
+      default:
+        return user.role || "";
+    }
+  };
+
+  const canManageAdmins = () => {
+    return currentUser && currentUser.role === "owner";
   };
 
   // Login Form
@@ -237,7 +340,7 @@ const AdminPanel = () => {
           <div className="login-card">
             <h1 className="login-title">Admin Panel</h1>
             <p className="login-subtitle">
-              Administratorlar uchun maxsus kirish
+              Owner, Admin va Helper'lar uchun kirish
             </p>
 
             <form onSubmit={handleLogin} className="login-form">
@@ -283,7 +386,7 @@ const AdminPanel = () => {
     );
   }
 
-  // Admin Dashboard
+  // Main Dashboard
   return (
     <div className="admin-container">
       <div className="admin-content">
@@ -294,6 +397,12 @@ const AdminPanel = () => {
             <p className="admin-subtitle">
               EPICMINE.FUN - Donat boshqaruv paneli
             </p>
+            <div className="user-info">
+              <span className="user-role">{getUserRoleDisplay(currentUser)}</span>
+              <span className="user-email">
+                {currentUser?.nickname || currentUser?.email}
+              </span>
+            </div>
           </div>
           <div className="admin-actions">
             <button onClick={handleLogout} className="logout-button">
@@ -302,7 +411,7 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Navigation Tabs */}
         <div className="admin-tabs">
           <button
             onClick={() => setActiveTab("ranks")}
@@ -329,14 +438,22 @@ const AdminPanel = () => {
             Jamoa
           </button>
           <button
-            onClick={() => setActiveTab("admins")}
-            className={`admin-tab ${activeTab === "admins" ? "active" : ""}`}
+            onClick={() => setActiveTab("helpers")}
+            className={`admin-tab ${activeTab === "helpers" ? "active" : ""}`}
           >
-            Adminlar
+            Helper'lar
           </button>
+          {canManageAdmins() && (
+            <button
+              onClick={() => setActiveTab("admins")}
+              className={`admin-tab ${activeTab === "admins" ? "active" : ""}`}
+            >
+              Adminlar
+            </button>
+          )}
         </div>
 
-        {/* CRUD Section */}
+        {/* Main Content Area */}
         <div className="crud-section">
           <div className="crud-header">
             <h2 className="crud-title">
@@ -344,8 +461,10 @@ const AdminPanel = () => {
               {activeTab === "tokens" && "Tokenlar boshqaruvi"}
               {activeTab === "coins" && "Coinlar boshqaruvi"}
               {activeTab === "team" && "Jamoa aʼzolari boshqaruvi"}
+              {activeTab === "helpers" && "Helper'lar ro'yxati"}
+              {activeTab === "admins" && "Adminlar boshqaruvi"}
             </h2>
-            {activeTab !== "admins" && (
+            {!["admins", "helpers"].includes(activeTab) && (
               <button
                 onClick={() => openAddModal(activeTab)}
                 className="add-button"
@@ -363,64 +482,70 @@ const AdminPanel = () => {
             )}
           </div>
 
-          {/* Data Table */}
-          {activeTab !== "admins" && (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nomi</th>
-                  {activeTab === "ranks" && <th>Muddati</th>}
-                  {(activeTab === "tokens" || activeTab === "coins") && (
-                    <th>Miqdori</th>
-                  )}
-                  <th>Narxi</th>
-                  <th>Amallar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data[activeTab].map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    {activeTab === "ranks" && <td>{item.duration}</td>}
-                    {(activeTab === "tokens" || activeTab === "coins") && (
-                      <td>{item.amount}</td>
-                    )}
-                    <td>{formatPrice(item.price)}</td>
-                    <td>
-                      <div className="table-actions">
-                        <button
-                          onClick={() => openEditModal(item, activeTab)}
-                          className="edit-button"
-                        >
-                          Tahrirlash
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="delete-button"
-                        >
-                          O'chirish
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Content based on active tab */}
+          {activeTab === "helpers" && <HelpersManager currentUser={currentUser} />}
+          {activeTab === "admins" && canManageAdmins() && <AdminsManager />}
+          
+          {/* Regular data tables */}
+          {!["admins", "helpers"].includes(activeTab) && (
+            <>
+              {data[activeTab].length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nomi</th>
+                      {activeTab === "ranks" && <th>Muddati</th>}
+                      {activeTab === "team" && <th>Rol</th>}
+                      {(activeTab === "tokens" || activeTab === "coins") && (
+                        <th>Miqdori</th>
+                      )}
+                      {activeTab !== "team" && <th>Narxi</th>}
+                      <th>Amallar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data[activeTab].map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name || item.nickname}</td>
+                        {activeTab === "ranks" && <td>{item.duration}</td>}
+                        {activeTab === "team" && <td>{item.role}</td>}
+                        {(activeTab === "tokens" || activeTab === "coins") && (
+                          <td>{item.amount}</td>
+                        )}
+                        {activeTab !== "team" && <td>{formatPrice(item.price)}</td>}
+                        <td>
+                          <div className="table-actions">
+                            <button
+                              onClick={() => openEditModal(item, activeTab)}
+                              className="edit-button"
+                            >
+                              Tahrirlash
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="delete-button"
+                            >
+                              O'chirish
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-title">Hech narsa topilmadi</div>
+                  <div className="empty-description">
+                    Yangi element qo'shish uchun "Qo'shish" tugmasini bosing
+                  </div>
+                </div>
+              )}
+            </>
           )}
-
-          {activeTab !== "admins" && data[activeTab].length === 0 && (
-            <div className="empty-state">
-              <div className="empty-title">Hech narsa topilmadi</div>
-              <div className="empty-description">
-                Yangi element qo'shish uchun "Qo'shish" tugmasini bosing
-              </div>
-            </div>
-          )}
-
-          {activeTab === "admins" && <AdminsManager />}
         </div>
 
-        {/* Modal */}
+        {/* Modal for Add/Edit */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -438,13 +563,18 @@ const AdminPanel = () => {
 
               <div className="modal-form">
                 <div className="form-group">
-                  <label className="form-label">Nomi</label>
+                  <label className="form-label">
+                    {activeTab === "team" ? "Nickname" : "Nomi"}
+                  </label>
                   <input
                     type="text"
                     className="form-input"
-                    value={formData.name || ""}
+                    value={formData.name || formData.nickname || ""}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                      setFormData((prev) => ({ 
+                        ...prev, 
+                        [activeTab === "team" ? "nickname" : "name"]: e.target.value 
+                      }))
                     }
                   />
                 </div>
@@ -503,20 +633,6 @@ const AdminPanel = () => {
 
                 {activeTab === "team" && (
                   <>
-                    <div className="form-group">
-                      <label className="form-label">Nickname</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={formData.nickname || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            nickname: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
                     <div className="form-group">
                       <label className="form-label">Rol</label>
                       <input
@@ -650,87 +766,387 @@ const AdminPanel = () => {
   );
 };
 
-// Admins manager component (localStorage based)
-const AdminsManager = () => {
-  const [admins, setAdmins] = useState(() => {
-    const saved = localStorage.getItem("epic_admin_accounts");
-    return saved ? JSON.parse(saved) : [{ email: "ryumarof@gmail.com" }];
-  });
-  const [form, setForm] = useState({ email: "", password: "" });
+// Helper'lar ro'yxati komponenti - barcha foydalanuvchilar ko'ra oladi
+const HelpersManager = ({ currentUser }) => {
+  const [helpers, setHelpers] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("epic_admin_accounts", JSON.stringify(admins));
-  }, [admins]);
-
-  const add = (e) => {
-    e.preventDefault();
-    if (!form.email || !form.password) return;
-    setAdmins((prev) => [...prev, { email: form.email }]);
-    setForm({ email: "", password: "" });
-  };
-
-  const remove = (email) => {
-    if (email === "ryumarof@gmail.com") return;
-    setAdmins((prev) => prev.filter((a) => a.email !== email));
-  };
+    const loadHelpers = () => {
+      const saved = localStorage.getItem("epic_helpers");
+      setHelpers(saved ? JSON.parse(saved) : []);
+    };
+    
+    loadHelpers();
+    
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      loadHelpers();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <div>
-      <h2 className="crud-title">Adminlar boshqaruvi</h2>
-      <div className="data-table" style={{ background: "transparent" }}>
+      <div className="helpers-info">
+        <h3>Helper'lar ro'yxati</h3>
+        <p>
+          Barcha Helper'lar ro'yxati. Helper'lar admin qiladigan barcha ishni qila oladi, 
+          faqat yangi admin qo'shish va o'chirishga ruxsati yo'q.
+        </p>
+      </div>
+      
+      {helpers.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-title">Hech qanday Helper topilmadi</div>
+          <div className="empty-description">
+            Hozircha hech qanday Helper qo'shilmagan
+          </div>
+        </div>
+      ) : (
         <table className="data-table">
           <thead>
             <tr>
+              <th>Nickname</th>
               <th>Email</th>
-              <th>Amallar</th>
+              <th>Qo'shilgan sana</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {admins.map((a) => (
-              <tr key={a.email}>
-                <td>{a.email}</td>
+            {helpers.map((helper) => (
+              <tr key={helper.id}>
+                <td>{helper.nickname}</td>
+                <td>{helper.email}</td>
+                <td>{new Date(helper.createdAt).toLocaleDateString('uz-UZ')}</td>
                 <td>
-                  <div className="table-actions">
-                    <button
-                      onClick={() => remove(a.email)}
-                      className="delete-button"
-                    >
-                      O'chirish
-                    </button>
-                  </div>
+                  <span className="status-online">Faol</span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+    </div>
+  );
+};
+
+// Adminlar boshqaruvi komponenti - faqat Owner ko'ra oladi
+const AdminsManager = () => {
+  const [admins, setAdmins] = useState([]);
+  const [helpers, setHelpers] = useState([]);
+  const [adminForm, setAdminForm] = useState({ 
+    email: "", 
+    password: "", 
+    nickname: "" 
+  });
+  const [helperForm, setHelperForm] = useState({ 
+    email: "", 
+    password: "", 
+    nickname: "" 
+  });
+  const [isAddingHelper, setIsAddingHelper] = useState(false);
+
+  useEffect(() => {
+    // Load existing data
+    const savedAdmins = localStorage.getItem("epic_admins");
+    const savedHelpers = localStorage.getItem("epic_helpers");
+    
+    setAdmins(savedAdmins ? JSON.parse(savedAdmins) : []);
+    setHelpers(savedHelpers ? JSON.parse(savedHelpers) : []);
+  }, []);
+
+  // Save admins to localStorage
+  const saveAdmins = (newAdmins) => {
+    setAdmins(newAdmins);
+    localStorage.setItem("epic_admins", JSON.stringify(newAdmins));
+  };
+
+  // Save helpers to localStorage
+  const saveHelpers = (newHelpers) => {
+    setHelpers(newHelpers);
+    localStorage.setItem("epic_helpers", JSON.stringify(newHelpers));
+  };
+
+  // Add new admin
+  const addAdmin = (e) => {
+    e.preventDefault();
+    if (!adminForm.email || !adminForm.password || !adminForm.nickname) {
+      alert("Barcha maydonlarni to'ldiring!");
+      return;
+    }
+    
+    // Check if email already exists
+    const allUsers = [...admins, ...helpers];
+    if (allUsers.some(user => user.email === adminForm.email)) {
+      alert("Bu email allaqachon ishlatilmoqda!");
+      return;
+    }
+    
+    const newAdmin = {
+      id: Date.now().toString(),
+      email: adminForm.email,
+      password: adminForm.password,
+      nickname: adminForm.nickname,
+      role: "admin",
+      createdAt: new Date().toISOString()
+    };
+    
+    saveAdmins([...admins, newAdmin]);
+    setAdminForm({ email: "", password: "", nickname: "" });
+    alert("Admin muvaffaqiyatli qo'shildi!");
+  };
+
+  // Add new helper via POST simulation
+  const addHelper = async (e) => {
+    e.preventDefault();
+    if (!helperForm.email || !helperForm.password || !helperForm.nickname) {
+      alert("Barcha maydonlarni to'ldiring!");
+      return;
+    }
+    
+    // Check if email already exists
+    const allUsers = [...admins, ...helpers];
+    if (allUsers.some(user => user.email === helperForm.email)) {
+      alert("Bu email allaqachon ishlatilmoqda!");
+      return;
+    }
+    
+    setIsAddingHelper(true);
+    
+    try {
+      // Simulate POST request delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In real application, this would be:
+      // const response = await fetch('/api/helpers', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     email: helperForm.email,
+      //     password: helperForm.password,
+      //     nickname: helperForm.nickname,
+      //     role: "helper"
+      //   })
+      // });
+      
+      const newHelper = {
+        id: Date.now().toString(),
+        email: helperForm.email,
+        password: helperForm.password,
+        nickname: helperForm.nickname,
+        role: "helper",
+        createdAt: new Date().toISOString()
+      };
+      
+      saveHelpers([...helpers, newHelper]);
+      setHelperForm({ email: "", password: "", nickname: "" });
+      alert("Helper muvaffaqiyatli qo'shildi va login qila oladi!");
+      
+    } catch (error) {
+      alert("Helper qo'shishda xatolik yuz berdi: " + error.message);
+    } finally {
+      setIsAddingHelper(false);
+    }
+  };
+
+  // Remove admin
+  const removeAdmin = (adminId) => {
+    if (window.confirm("Bu adminni o'chirishni xohlaysizmi?")) {
+      const newAdmins = admins.filter(admin => admin.id !== adminId);
+      saveAdmins(newAdmins);
+      alert("Admin o'chirildi!");
+    }
+  };
+
+  // Remove helper
+  const removeHelper = (helperId) => {
+    if (window.confirm("Bu helper'ni o'chirishni xohlaysizmi? U endi login qila olmaydi.")) {
+      const newHelpers = helpers.filter(helper => helper.id !== helperId);
+      saveHelpers(newHelpers);
+      alert("Helper o'chirildi va endi login qila olmaydi!");
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="crud-title">Adminlar va Helper'lar boshqaruvi</h2>
+      
+      {/* Admins Section */}
+      <div className="admin-section">
+        <h3>Adminlar ro'yxati</h3>
+        {admins.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Nickname</th>
+                <th>Email</th>
+                <th>Qo'shilgan sana</th>
+                <th>Amallar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map((admin) => (
+                <tr key={admin.id}>
+                  <td>{admin.nickname}</td>
+                  <td>{admin.email}</td>
+                  <td>{new Date(admin.createdAt).toLocaleDateString('uz-UZ')}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button
+                        onClick={() => removeAdmin(admin.id)}
+                        className="delete-button"
+                      >
+                        O'chirish
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="empty-state">
+            <div className="empty-description">Hech qanday admin qo'shilmagan</div>
+          </div>
+        )}
+
+        {/* Add Admin Form */}
+        <form onSubmit={addAdmin} className="admin-form">
+          <h4>Yangi Admin qo'shish</h4>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Nickname</label>
+              <input
+                type="text"
+                className="form-input"
+                value={adminForm.nickname}
+                onChange={(e) =>
+                  setAdminForm((prev) => ({ ...prev, nickname: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={adminForm.email}
+                onChange={(e) =>
+                  setAdminForm((prev) => ({ ...prev, email: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Parol</label>
+              <input
+                type="password"
+                className="form-input"
+                value={adminForm.password}
+                onChange={(e) =>
+                  setAdminForm((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" className="add-button">
+            Admin qo'shish
+          </button>
+        </form>
       </div>
-      <form onSubmit={add} className="login-form" style={{ marginTop: "1rem" }}>
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-input"
-            value={form.email}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Parol</label>
-          <input
-            type="password"
-            className="form-input"
-            value={form.password}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-          />
-        </div>
-        <button type="submit" className="add-button">
-          Admin qo'shish
-        </button>
-      </form>
+
+      {/* Helpers Section */}
+      <div className="helper-section" style={{ marginTop: "2rem" }}>
+        <h3>Helper'lar ro'yxati</h3>
+        {helpers.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Nickname</th>
+                <th>Email</th>
+                <th>Qo'shilgan sana</th>
+                <th>Amallar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {helpers.map((helper) => (
+                <tr key={helper.id}>
+                  <td>{helper.nickname}</td>
+                  <td>{helper.email}</td>
+                  <td>{new Date(helper.createdAt).toLocaleDateString('uz-UZ')}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button
+                        onClick={() => removeHelper(helper.id)}
+                        className="delete-button"
+                      >
+                        O'chirish
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="empty-state">
+            <div className="empty-description">Hech qanday helper qo'shilmagan</div>
+          </div>
+        )}
+
+        {/* Add Helper Form with POST simulation */}
+        <form onSubmit={addHelper} className="admin-form">
+          <h4>Yangi Helper qo'shish (POST request)</h4>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Nickname</label>
+              <input
+                type="text"
+                className="form-input"
+                value={helperForm.nickname}
+                onChange={(e) =>
+                  setHelperForm((prev) => ({ ...prev, nickname: e.target.value }))
+                }
+                required
+                disabled={isAddingHelper}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={helperForm.email}
+                onChange={(e) =>
+                  setHelperForm((prev) => ({ ...prev, email: e.target.value }))
+                }
+                required
+                disabled={isAddingHelper}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Parol</label>
+              <input
+                type="password"
+                className="form-input"
+                value={helperForm.password}
+                onChange={(e) =>
+                  setHelperForm((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
+                disabled={isAddingHelper}
+              />
+            </div>
+          </div>
+          <button type="submit" className="add-button" disabled={isAddingHelper}>
+            {isAddingHelper ? "Qo'shilmoqda..." : "Helper qo'shish (POST)"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
