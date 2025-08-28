@@ -11,10 +11,10 @@ const AdminPanel = () => {
   const [modalType, setModalType] = useState('add'); // 'add' or 'edit'
 
   // Secure credentials as specified
-  const ADMIN_CREDENTIALS = {
-    email: 'ryumarof@gmail.com',
-    password: '1818epic40'
-  };
+const ADMIN_CREDENTIALS = {
+  email: ['ryumarof@gmail.com', 'Crown1234@gmail.com'],
+  password: ['1818epic40', 'crownjon12123232uzbn'],
+};
 
   // Mock data - in real app this would come from API
   const [data, setData] = useState({
