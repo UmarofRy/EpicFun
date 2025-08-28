@@ -12,8 +12,8 @@ const AdminPanel = () => {
 
   // Secure credentials as specified
   const ADMIN_CREDENTIALS = {
-    email: "Crown1234@gmail.com",
-    password: "crownjon12123232uzbn",
+    email: "ryumarof@gmail.com",
+    password: "1818epic40",
   };
 
   // Mock data - in real app this would come from API
